@@ -1,9 +1,18 @@
 import express from "express";
-import bodyParser from "body-parser";
+// import bodyParser from "body-parser";
 
 export const app = express();
 
-app.use(bodyParser({}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// app.use(bodyParser({}));
+
+const port = process.env.PORT || 3000;
+
+// app.listen(port, () => {
+//   console.log(`Server is running on port ${port}`);
+// });
 
 interface Balances {
   [key: string]: number;

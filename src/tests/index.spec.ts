@@ -1,5 +1,5 @@
 import request from "supertest";
-import { app, TICKER } from "../src";
+import { app, TICKER } from "../";
 
 describe("Basic tests", () => {
 
