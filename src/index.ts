@@ -59,14 +59,14 @@ app.post("/order", (req: any, res: any) => {
       price,
       quantity: remainingQty
     });
-    bids.sort((a, b) => a.price < b.price ? 1 : -1);
+    bids.sort((a, b) => a.price < b.price ? -1 : 1);
   } else {
     asks.push({
       userId,
       price,
       quantity: remainingQty
     })
-    asks.sort((a, b) => a.price < b.price ? -1 : 1);
+    asks.sort((a, b) => a.price < b.price ? 1 : -1);
   }
 
   res.json({
@@ -122,7 +122,21 @@ app.get("/balance/:userId", (req, res) => {
 })
 
 app.get("/quote", (req, res) => {
-  // TODO: Assignment
+  let quoteQuantity: number = req.body.quantity;
+  let tempPrice = 0.0;
+
+  for (let i = asks.length - 1, j = 1; i >= 0; i--, j++) {
+    if (asks[i].quantity > quoteQuantity) {
+      tempPrice = (tempPrice + asks[i].price) / j;
+      break;
+    }
+
+    if (asks[i].quantity < quoteQuantity) {
+      quoteQuantity = quoteQuantity - asks[i].quantity; tempPrice = (tempPrice +
+        asks[i].price) / j;
+    }
+  }
+  res.json({ quote: tempPrice * req.body.quantity });
 });
 
 function flipBalance(userId1: string, userId2: string, quantity: number, price: number) {
@@ -146,11 +160,11 @@ function fillOrders(side: string, price: number, quantity: number, userId: strin
       }
       if (asks[i].quantity > remainingQuantity) {
         asks[i].quantity -= remainingQuantity;
-        flipBalance(asks[i].userId, userId, remainingQuantity, price);
+        flipBalance(asks[i].userId, userId, remainingQuantity, asks[i].price);
         return 0;
       } else {
         remainingQuantity -= asks[i].quantity;
-        flipBalance(asks[i].userId, userId, asks[i].quantity, price);
+        flipBalance(asks[i].userId, userId, asks[i].quantity, asks[i].price);
         asks.pop();
       }
     }
